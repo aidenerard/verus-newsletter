@@ -53,6 +53,11 @@ const PAGE_CSS = `
     background: ${C.card};
     border: 1.5px solid ${C.border};
     transition: border-color 0.25s;
+    padding: 28px;
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: flex-start;
   }
   .tm-card:hover { border-color: ${C.orange}; }
 
@@ -72,23 +77,6 @@ const PAGE_CSS = `
   .tm-reveal.revealed {
     opacity: 1;
     transform: translateY(0);
-  }
-
-  .tm-bullet {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    font-size: 13px;
-    color: ${C.textGray};
-    line-height: 1.65;
-    margin-bottom: 8px;
-  }
-  .tm-bullet::before {
-    content: '—';
-    color: ${C.orange};
-    flex-shrink: 0;
-    font-weight: 700;
-    font-size: 11px;
   }
 `;
 
@@ -115,86 +103,65 @@ function useReveal(delay = 0) {
 interface Founder {
   name: string;
   title: string;
-  initials: string;
-  photo?: string;
-  bullets: string[];
+  photo: string;
+  bio: string;
 }
 
 const FOUNDERS: Founder[] = [
   {
     name: 'Aiden Erard',
-    title: 'CEO',
-    initials: 'AE',
+    title: 'CEO & Co-Founder',
     photo: '/aiden.png',
-    bullets: [
-      'Computer Engineering at Georgia Tech',
-      'Researching bipedal robotics and autonomous navigation',
-      'Won multiple hackathons — built real-time telemetry systems and multi-API integrations',
-      'Experience scaling businesses, marketing, and customer discovery',
-    ],
+    bio: 'Aiden is studying Computer Engineering at Georgia Tech, where he researches bipedal robotics and autonomous navigation. He has won multiple hackathons, building real-time telemetry systems and multi-API integrations. He also brings experience in scaling businesses, marketing, and customer discovery.',
   },
   {
     name: 'Taran Govindu',
-    title: 'CTO',
-    initials: 'TG',
+    title: 'CTO & Co-Founder',
     photo: '/taran.png',
-    bullets: [
-      'Aerospace Engineering at Georgia Tech',
-      'Researching AI-accelerated simulation',
-      'Built neural networks for exoplanet detection and medical diagnostics (98%+ accuracy)',
-      'Published peer-reviewed research (5,000+ reads)',
-      'Designed rocket propulsion systems and simulations',
-    ],
+    bio: 'Taran is studying Aerospace Engineering at Georgia Tech, where he researches AI-accelerated simulation. He has built neural networks for exoplanet detection and medical diagnostics achieving 98%+ accuracy, published peer-reviewed research with over 5,000 reads, and designed rocket propulsion systems and simulations.',
   },
 ];
 
 function FounderCard({ founder, delay }: { founder: Founder; delay: number }) {
   const ref = useReveal(delay);
   return (
-    <div ref={ref} className="tm-reveal tm-card" style={{ padding: '36px 32px' }}>
-      {founder.photo ? (
-        <img
-          src={founder.photo}
-          alt={founder.name}
-          style={{
-            width: 88,
-            height: 110,
-            objectFit: 'cover',
-            objectPosition: 'top',
-            borderRadius: 4,
-            border: `2px solid ${C.orange}`,
-            marginBottom: 24,
-            display: 'block',
-          }}
-        />
-      ) : (
-        <div style={{
-          width: 64, height: 64,
-          background: C.black,
+    <div ref={ref} className="tm-reveal tm-card">
+      {/* Photo */}
+      <img
+        src={founder.photo}
+        alt={founder.name}
+        style={{
+          width: 120,
+          flexShrink: 0,
+          aspectRatio: '3 / 4',
+          objectFit: 'cover',
+          objectPosition: 'top',
+          borderRadius: 4,
           border: `2px solid ${C.orange}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 24,
-          fontSize: 20, fontWeight: 700, color: C.orange,
-          letterSpacing: '0.04em',
+          display: 'block',
+        }}
+      />
+
+      {/* Text */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h3 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: C.black }}>
+          {founder.name}
+        </h3>
+        <p style={{
+          margin: '0 0 14px',
+          fontSize: 10, fontWeight: 700,
+          textTransform: 'uppercase', letterSpacing: '0.1em', color: C.orange,
         }}>
-          {founder.initials}
-        </div>
-      )}
-
-      <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 700, color: C.black }}>
-        {founder.name}
-      </h3>
-      <p style={{
-        margin: '0 0 24px', fontSize: 11, fontWeight: 700,
-        textTransform: 'uppercase', letterSpacing: '0.08em', color: C.orange,
-      }}>
-        {founder.title}
-      </p>
-
-      <div>
-        {founder.bullets.map((b, i) => (
-          <div key={i} className="tm-bullet">{b}</div>
-        ))}
+          {founder.title}
+        </p>
+        <p style={{
+          margin: 0,
+          fontSize: 13,
+          color: C.textGray,
+          lineHeight: 1.75,
+        }}>
+          {founder.bio}
+        </p>
       </div>
     </div>
   );
@@ -283,7 +250,7 @@ export default function TeamPage() {
         background: C.offWhite,
         padding: '80px 48px 96px',
       }}>
-        <div style={{ maxWidth: 880, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
