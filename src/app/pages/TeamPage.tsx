@@ -195,7 +195,7 @@ interface Founder {
 const FOUNDERS: Founder[] = [
   {
     name: 'Aiden Erard',
-    title: 'CEO',
+    title: 'CEO & Co-Founder',
     initials: 'AE',
     photo: '/aiden.png',
     bullets: [
@@ -207,7 +207,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: 'Taran Govindu',
-    title: 'CTO',
+    title: 'CTO & Co-Founder',
     initials: 'TG',
     photo: '/taran.png',
     bullets: [
