@@ -5,9 +5,6 @@ const C = {
   black:    '#0A0A0A',
   orange:   '#E8601C',
   offWhite: '#F5F3EF',
-  card:     '#FDFCFA',
-  border:   '#E2DED9',
-  textGray: '#7A7470',
   borderDk: 'rgba(255,255,255,0.09)',
 };
 
@@ -49,13 +46,6 @@ const PAGE_CSS = `
   }
   .tm-nav-signup:hover { background: #D4521A; transform: translateY(-2px); }
 
-  .tm-card {
-    background: ${C.card};
-    border: 1.5px solid ${C.border};
-    transition: border-color 0.25s;
-  }
-  .tm-card:hover { border-color: ${C.orange}; }
-
   .tm-footer-link {
     color: rgba(240,237,232,0.5);
     text-decoration: none;
@@ -67,28 +57,16 @@ const PAGE_CSS = `
   .tm-reveal {
     opacity: 0;
     transform: translateY(24px);
-    transition: opacity 0.55s ease, transform 0.55s ease;
+    transition: opacity 0.6s ease, transform 0.6s ease;
   }
   .tm-reveal.revealed {
     opacity: 1;
     transform: translateY(0);
   }
 
-  .tm-bullet {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    font-size: 13px;
-    color: ${C.textGray};
-    line-height: 1.65;
-    margin-bottom: 8px;
-  }
-  .tm-bullet::before {
-    content: '—';
-    color: ${C.orange};
-    flex-shrink: 0;
-    font-weight: 700;
-    font-size: 11px;
+  @media (max-width: 700px) {
+    .tm-founder-row { flex-direction: column !important; }
+    .tm-founder-photo { width: 100% !important; max-width: 280px !important; margin: 0 auto 32px !important; }
   }
 `;
 
@@ -104,7 +82,7 @@ function useReveal(delay = 0) {
           obs.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -115,96 +93,97 @@ function useReveal(delay = 0) {
 interface Founder {
   name: string;
   title: string;
-  initials: string;
-  photo?: string;
-  bullets: string[];
+  photo: string;
+  bio: string;
 }
 
 const FOUNDERS: Founder[] = [
   {
     name: 'Aiden Erard',
     title: 'CEO',
-    initials: 'AE',
-    bullets: [
-      'Computer Engineering at Georgia Tech',
-      'Researching autonomy and robotics',
-      'Built GridGuard — IoT energy resilience system with real-time telemetry',
-      'AI music app integrating 5 APIs, built in 36 hrs',
-      'Scaled lawn care business to 5 figures in 3 months',
-    ],
+    photo: '/aiden.png',
+    bio: 'Aiden is studying Computer Engineering at Georgia Tech, where he researches autonomy and robotics. He built GridGuard, an IoT energy resilience system with real-time telemetry, and developed an AI music app integrating five APIs in just 36 hours. He also scaled a lawn care business to five figures in three months before co-founding Verus.',
   },
   {
     name: 'Taran Govindu',
     title: 'CTO',
-    initials: 'TG',
-    bullets: [
-      'Aerospace Engineering at Georgia Tech',
-      'Researching AI-accelerated simulation',
-      'Built neural networks for exoplanet detection and medical diagnostics (98%+ accuracy)',
-      'Published peer-reviewed research (5,000+ reads)',
-      'Designed rocket propulsion systems and simulations',
-    ],
+    photo: '/taran.png',
+    bio: 'Taran is studying Aerospace Engineering at Georgia Tech, where he researches AI-accelerated simulation. He has built neural networks for exoplanet detection and medical diagnostics achieving 98%+ accuracy, published peer-reviewed research with over 5,000 reads, and designed rocket propulsion systems and simulations before co-founding Verus.',
   },
 ];
 
-function FounderCard({ founder, delay }: { founder: Founder; delay: number }) {
+function FounderPanel({ founder, delay }: { founder: Founder; delay: number }) {
   const ref = useReveal(delay);
   return (
-    <div ref={ref} className="tm-reveal tm-card" style={{ padding: '36px 32px' }}>
-      {/* Avatar / Photo */}
-      {founder.photo ? (
-        <img
-          src={founder.photo}
-          alt={founder.name}
-          style={{
-            width: 80, height: 80,
-            objectFit: 'cover',
-            borderRadius: 4,
-            border: `2px solid ${C.orange}`,
-            marginBottom: 24,
-            display: 'block',
-          }}
-        />
-      ) : (
-        <div style={{
-          width: 64, height: 64,
-          background: C.black,
-          border: `2px solid ${C.orange}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 24,
-          fontSize: 20, fontWeight: 700, color: C.orange,
-          letterSpacing: '0.04em',
-        }}>
-          {founder.initials}
-        </div>
-      )}
-
-      <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 700, color: C.black }}>
-        {founder.name}
-      </h3>
-      <p style={{
-        margin: '0 0 24px', fontSize: 11, fontWeight: 700,
-        textTransform: 'uppercase', letterSpacing: '0.08em', color: C.orange,
+    <div ref={ref} className="tm-reveal" style={{
+      borderBottom: `1px solid ${C.borderDk}`,
+      padding: '80px 48px',
+    }}>
+      <div className="tm-founder-row" style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 64,
+        maxWidth: 1000,
+        margin: '0 auto',
       }}>
-        {founder.title}
-      </p>
+        {/* Photo */}
+        <div className="tm-founder-photo" style={{ flexShrink: 0, width: 220 }}>
+          <img
+            src={founder.photo}
+            alt={founder.name}
+            style={{
+              width: '100%',
+              aspectRatio: '3/4',
+              objectFit: 'cover',
+              objectPosition: 'top',
+              display: 'block',
+            }}
+          />
+        </div>
 
-      <div>
-        {founder.bullets.map((b, i) => (
-          <div key={i} className="tm-bullet">{b}</div>
-        ))}
+        {/* Text */}
+        <div style={{ flex: 1, paddingTop: 8 }}>
+          <h2 style={{
+            margin: '0 0 10px',
+            fontSize: 'clamp(40px, 5vw, 60px)',
+            fontWeight: 800,
+            color: '#F0EDE8',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.05,
+          }}>
+            {founder.name}
+          </h2>
+          <p style={{
+            margin: '0 0 32px',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: C.orange,
+          }}>
+            {founder.title}
+          </p>
+          <p style={{
+            margin: 0,
+            fontSize: 17,
+            color: 'rgba(240,237,232,0.65)',
+            lineHeight: 1.75,
+            maxWidth: 580,
+          }}>
+            {founder.bio}
+          </p>
+        </div>
       </div>
     </div>
   );
 }
 
 export default function TeamPage() {
-  const heroRef  = useReveal(0);
-  const labelRef = useReveal(80);
-  const taglineRef = useReveal(160);
+  const heroRef = useReveal(0);
+  const subRef  = useReveal(100);
 
   return (
-    <div style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', overflowX: 'hidden' }}>
+    <div style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', overflowX: 'hidden', background: C.black, minHeight: '100vh' }}>
       <style>{PAGE_CSS}</style>
 
       {/* ── Navbar ── */}
@@ -233,70 +212,53 @@ export default function TeamPage() {
           <Link to="/team" className="tm-nav-link" style={{ color: '#F0EDE8' }}>Team</Link>
         </div>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 22, flexShrink: 0 }}>
+        <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
           <Link to="/waitlist" className="tm-nav-signup">Join the Waitlist</Link>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section style={{
-        background: C.black,
-        padding: '100px 48px 80px',
-        textAlign: 'center',
-      }}>
-        <div ref={labelRef} className="tm-reveal" style={{
-          display: 'inline-block',
-          fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
-          textTransform: 'uppercase', color: C.orange,
-          marginBottom: 24,
-        }}>
-          The People Behind Verus
-        </div>
-
-        <div ref={heroRef} className="tm-reveal" style={{ transitionDelay: '80ms' }}>
-          <h1 style={{
-            fontSize: 'clamp(36px, 6vw, 64px)',
-            fontWeight: 800, color: '#F0EDE8',
-            margin: '0 0 20px',
-            lineHeight: 1.1,
-            letterSpacing: '-0.03em',
-          }}>
-            The Team
-          </h1>
-        </div>
-
-        <div ref={taglineRef} className="tm-reveal" style={{ transitionDelay: '160ms' }}>
-          <p style={{
-            fontSize: 17, color: 'rgba(240,237,232,0.6)',
-            maxWidth: 560, margin: '0 auto',
-            lineHeight: 1.65, fontStyle: 'italic',
-          }}>
-            Met at Georgia Tech building an inspection drone. Realized the real problem was the data analysis.
-          </p>
-        </div>
-      </section>
-
-      {/* ── Founders ── */}
-      <section style={{
-        background: C.offWhite,
-        padding: '80px 48px 96px',
-      }}>
-        <div style={{ maxWidth: 880, margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-            gap: 24,
-          }}>
-            {FOUNDERS.map((founder, i) => (
-              <FounderCard key={founder.name} founder={founder} delay={i * 120} />
-            ))}
+      <section style={{ padding: '100px 48px 72px', borderBottom: `1px solid ${C.borderDk}` }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div ref={heroRef} className="tm-reveal">
+            <p style={{ margin: '0 0 16px', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.orange }}>
+              The People Behind Verus
+            </p>
+            <h1 style={{
+              margin: '0 0 24px',
+              fontSize: 'clamp(48px, 8vw, 88px)',
+              fontWeight: 800,
+              color: '#F0EDE8',
+              letterSpacing: '-0.04em',
+              lineHeight: 1.0,
+            }}>
+              The Team
+            </h1>
+          </div>
+          <div ref={subRef} className="tm-reveal">
+            <p style={{
+              margin: 0,
+              fontSize: 18,
+              color: 'rgba(240,237,232,0.5)',
+              lineHeight: 1.65,
+              fontStyle: 'italic',
+              maxWidth: 560,
+            }}>
+              Met at Georgia Tech building an inspection drone. Realized the real problem was the data analysis.
+            </p>
           </div>
         </div>
       </section>
 
+      {/* ── Founders ── */}
+      <section>
+        {FOUNDERS.map((founder, i) => (
+          <FounderPanel key={founder.name} founder={founder} delay={i * 100} />
+        ))}
+      </section>
+
       {/* ── Footer ── */}
       <footer style={{
-        background: C.black,
         borderTop: `1px solid ${C.borderDk}`,
         padding: '52px 48px',
       }}>
