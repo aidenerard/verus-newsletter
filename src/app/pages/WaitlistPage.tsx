@@ -256,7 +256,7 @@ export default function WaitlistPage() {
                   <input
                     type="text"
                     className={`wl-input${fieldErrors.fullName ? ' error' : ''}`}
-                    placeholder="Jane Smith"
+                    placeholder=""
                     value={fullName}
                     onChange={e => { setFullName(e.target.value); setFieldErrors(p => ({ ...p, fullName: undefined })); }}
                   />
@@ -272,7 +272,7 @@ export default function WaitlistPage() {
                   <input
                     type="email"
                     className={`wl-input${fieldErrors.email ? ' error' : ''}`}
-                    placeholder="jane@company.com"
+                    placeholder=""
                     value={email}
                     onChange={e => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: undefined })); }}
                   />
@@ -288,7 +288,7 @@ export default function WaitlistPage() {
                   <input
                     type="text"
                     className="wl-input"
-                    placeholder="Acme Infrastructure"
+                    placeholder=""
                     value={company}
                     onChange={e => setCompany(e.target.value)}
                   />

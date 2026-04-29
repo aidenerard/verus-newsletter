@@ -73,6 +73,23 @@ const PAGE_CSS = `
     opacity: 1;
     transform: translateY(0);
   }
+
+  .tm-bullet {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    color: ${C.textGray};
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+  .tm-bullet::before {
+    content: '—';
+    color: ${C.orange};
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 11px;
+  }
 `;
 
 function useReveal(delay = 0) {
@@ -95,27 +112,38 @@ function useReveal(delay = 0) {
   return ref;
 }
 
-// ── Founder card ──────────────────────────────────────────────────────────────
-
 interface Founder {
   name: string;
   title: string;
-  bio: string;
   initials: string;
+  photo?: string;
+  bullets: string[];
 }
 
 const FOUNDERS: Founder[] = [
   {
     name: 'Aiden Erard',
-    title: 'Co-Founder',
+    title: 'CEO',
     initials: 'AE',
-    bio: 'Aiden leads engineering and product at Verus. He brings deep expertise in applied machine learning and signal processing, with a focus on making advanced NDE analysis fast and accessible for infrastructure teams.',
+    bullets: [
+      'Computer Engineering at Georgia Tech',
+      'Researching autonomy and robotics',
+      'Built GridGuard — IoT energy resilience system with real-time telemetry',
+      'AI music app integrating 5 APIs, built in 36 hrs',
+      'Scaled lawn care business to 5 figures in 3 months',
+    ],
   },
   {
     name: 'Taran Govindu',
-    title: 'Co-Founder',
+    title: 'CTO',
     initials: 'TG',
-    bio: 'Taran leads business development and field operations at Verus. He has extensive experience working alongside bridge inspection teams and translating real-world NDE workflows into scalable software.',
+    bullets: [
+      'Aerospace Engineering at Georgia Tech',
+      'Researching AI-accelerated simulation',
+      'Built neural networks for exoplanet detection and medical diagnostics (98%+ accuracy)',
+      'Published peer-reviewed research (5,000+ reads)',
+      'Designed rocket propulsion systems and simulations',
+    ],
   },
 ];
 
@@ -123,40 +151,57 @@ function FounderCard({ founder, delay }: { founder: Founder; delay: number }) {
   const ref = useReveal(delay);
   return (
     <div ref={ref} className="tm-reveal tm-card" style={{ padding: '36px 32px' }}>
-      {/* Avatar */}
-      <div style={{
-        width: 64, height: 64,
-        background: C.black,
-        border: `2px solid ${C.orange}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 24,
-        fontSize: 20, fontWeight: 700, color: C.orange,
-        letterSpacing: '0.04em',
-      }}>
-        {founder.initials}
-      </div>
+      {/* Avatar / Photo */}
+      {founder.photo ? (
+        <img
+          src={founder.photo}
+          alt={founder.name}
+          style={{
+            width: 80, height: 80,
+            objectFit: 'cover',
+            borderRadius: 4,
+            border: `2px solid ${C.orange}`,
+            marginBottom: 24,
+            display: 'block',
+          }}
+        />
+      ) : (
+        <div style={{
+          width: 64, height: 64,
+          background: C.black,
+          border: `2px solid ${C.orange}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 24,
+          fontSize: 20, fontWeight: 700, color: C.orange,
+          letterSpacing: '0.04em',
+        }}>
+          {founder.initials}
+        </div>
+      )}
 
       <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 700, color: C.black }}>
         {founder.name}
       </h3>
       <p style={{
-        margin: '0 0 20px', fontSize: 11, fontWeight: 700,
+        margin: '0 0 24px', fontSize: 11, fontWeight: 700,
         textTransform: 'uppercase', letterSpacing: '0.08em', color: C.orange,
       }}>
         {founder.title}
       </p>
-      <p style={{ margin: 0, fontSize: 14, color: C.textGray, lineHeight: 1.7 }}>
-        {founder.bio}
-      </p>
+
+      <div>
+        {founder.bullets.map((b, i) => (
+          <div key={i} className="tm-bullet">{b}</div>
+        ))}
+      </div>
     </div>
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function TeamPage() {
   const heroRef  = useReveal(0);
   const labelRef = useReveal(80);
+  const taglineRef = useReveal(160);
 
   return (
     <div style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', overflowX: 'hidden' }}>
@@ -171,7 +216,6 @@ export default function TeamPage() {
         height: 58,
         display: 'flex', alignItems: 'center',
       }}>
-        {/* Logo — left */}
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <img src="/verus-logo.png" alt="Verus"
             style={{ width: 30, height: 30, objectFit: 'contain', display: 'block' }} />
@@ -180,7 +224,6 @@ export default function TeamPage() {
           </span>
         </Link>
 
-        {/* Nav links — absolutely centered */}
         <div style={{
           position: 'absolute', left: '50%', top: '50%',
           transform: 'translate(-50%, -50%)',
@@ -190,7 +233,6 @@ export default function TeamPage() {
           <Link to="/team" className="tm-nav-link" style={{ color: '#F0EDE8' }}>Team</Link>
         </div>
 
-        {/* Auth — right */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 22, flexShrink: 0 }}>
           <Link to="/waitlist" className="tm-nav-signup">Join the Waitlist</Link>
         </div>
@@ -221,12 +263,15 @@ export default function TeamPage() {
           }}>
             The Team
           </h1>
+        </div>
+
+        <div ref={taglineRef} className="tm-reveal" style={{ transitionDelay: '160ms' }}>
           <p style={{
-            fontSize: 18, color: 'rgba(240,237,232,0.55)',
-            maxWidth: 520, margin: '0 auto',
-            lineHeight: 1.65,
+            fontSize: 17, color: 'rgba(240,237,232,0.6)',
+            maxWidth: 560, margin: '0 auto',
+            lineHeight: 1.65, fontStyle: 'italic',
           }}>
-            We're building the infrastructure for smarter, faster bridge inspection — starting with the software teams already rely on in the field.
+            Met at Georgia Tech building an inspection drone. Realized the real problem was the data analysis.
           </p>
         </div>
       </section>
