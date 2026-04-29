@@ -367,18 +367,18 @@ function Hero() {
               {/* C-scan placeholder grid */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(12, 1fr)',
+                gridTemplateColumns: 'repeat(11, 1fr)',
                 gap: 2,
                 padding: 16,
                 aspectRatio: '4/3',
                 background: 'rgba(10,10,10,0.6)',
               }}>
-                {Array.from({ length: 96 }).map((_, i) => {
-                  const row = Math.floor(i / 12);
-                  const col = i % 12;
+                {Array.from({ length: 88 }).map((_, i) => {
+                  const row = Math.floor(i / 11);
+                  const col = i % 11;
                   // Fake delamination pattern
                   const isHot = (row >= 2 && row <= 4 && col >= 3 && col <= 6)
-                              || (row >= 5 && row <= 6 && col >= 7 && col <= 10);
+                              || (row >= 5 && row <= 6 && col >= 7 && col <= 9);
                   const isMid = (row >= 1 && row <= 5 && col >= 2 && col <= 7 && !isHot);
                   return (
                     <div key={i} style={{

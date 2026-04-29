@@ -126,19 +126,20 @@ function FounderCard({ founder, delay }: { founder: Founder; delay: number }) {
   const ref = useReveal(delay);
   return (
     <div ref={ref} className="tm-reveal tm-card">
-      {/* Photo — natural width, full height of card */}
-      <img
-        src={founder.photo}
-        alt={founder.name}
-        style={{
-          height: '100%',
-          width: 'auto',
-          flexShrink: 0,
-          borderRadius: 4,
-          border: `2px solid ${C.orange}`,
-          display: 'block',
-        }}
-      />
+      {/* Photo — wrapper stretches to text height; img fills it at natural width */}
+      <div style={{ alignSelf: 'stretch', flexShrink: 0 }}>
+        <img
+          src={founder.photo}
+          alt={founder.name}
+          style={{
+            height: '100%',
+            width: 'auto',
+            display: 'block',
+            borderRadius: 4,
+            border: `2px solid ${C.orange}`,
+          }}
+        />
+      </div>
 
       {/* Text */}
       <div style={{ flex: 1, minWidth: 0 }}>
