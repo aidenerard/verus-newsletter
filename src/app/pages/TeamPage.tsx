@@ -57,7 +57,7 @@ const PAGE_CSS = `
     display: flex;
     flex-direction: row;
     gap: 24px;
-    align-items: flex-start;
+    align-items: stretch;
   }
   .tm-card:hover { border-color: ${C.orange}; }
 
@@ -126,21 +126,22 @@ function FounderCard({ founder, delay }: { founder: Founder; delay: number }) {
   const ref = useReveal(delay);
   return (
     <div ref={ref} className="tm-reveal tm-card">
-      {/* Photo */}
-      <img
-        src={founder.photo}
-        alt={founder.name}
-        style={{
-          width: 120,
-          flexShrink: 0,
-          aspectRatio: '3 / 4',
-          objectFit: 'cover',
-          objectPosition: 'top',
-          borderRadius: 4,
-          border: `2px solid ${C.orange}`,
-          display: 'block',
-        }}
-      />
+      {/* Photo — wrapper stretches to card height via align-items:stretch */}
+      <div style={{ flexShrink: 0, width: 120 }}>
+        <img
+          src={founder.photo}
+          alt={founder.name}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            borderRadius: 4,
+            border: `2px solid ${C.orange}`,
+            display: 'block',
+          }}
+        />
+      </div>
 
       {/* Text */}
       <div style={{ flex: 1, minWidth: 0 }}>
