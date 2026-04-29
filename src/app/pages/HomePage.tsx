@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import VerusLogo from '../components/VerusLogo';
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
 const C = {
   black:    '#0A0A0A',
   orange:   '#E8601C',
@@ -17,7 +16,6 @@ const C = {
   borderDk: 'rgba(255,255,255,0.08)',
 } as const;
 
-// ── Global CSS ────────────────────────────────────────────────────────────────
 const PAGE_CSS = `
   @keyframes drift {
     0%   { transform: translate(0,0); }
@@ -39,6 +37,14 @@ const PAGE_CSS = `
   }
 
   /* Nav */
+  .vr-nav-inner {
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 48px;
+    height: 58px;
+  }
   .vr-nav-link {
     position: relative; text-decoration: none;
     color: rgba(240,237,232,0.68); font-size: 13px;
@@ -69,14 +75,59 @@ const PAGE_CSS = `
   }
   .vr-nav-signup:hover { background:#D4521A; transform:translateY(-1px); }
 
+  /* Nav desktop/mobile split */
+  .vr-nav-desktop-links {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; align-items: center; gap: 32px;
+  }
+  .vr-nav-desktop-cta {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 22px; flex-shrink: 0;
+  }
+  .vr-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .vr-hamburger span {
+    display: block;
+    width: 20px; height: 2px;
+    background: rgba(240,237,232,0.85);
+    border-radius: 1px;
+    transition: transform 0.22s, opacity 0.22s;
+  }
+  .vr-mobile-menu {
+    display: none;
+    position: fixed;
+    top: 58px; left: 0; right: 0;
+    background: #0A0A0A;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 4px 24px 20px;
+    flex-direction: column;
+    z-index: 99;
+  }
+  .vr-mobile-menu.open { display: flex; }
+  .vr-mobile-menu-link {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(240,237,232,0.75);
+    font-size: 15px; font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .vr-mobile-menu-link:hover { color: #F0EDE8; }
+
   /* Why Verus row hover */
-  .vr-why-row:hover {
-    background: rgba(232,96,28,0.03);
-  }
-  .vr-why-row:hover .vr-why-num {
-    color: #D4521A;
-    transform: scale(1.08);
-  }
+  .vr-why-row:hover { background: rgba(232,96,28,0.03); }
+  .vr-why-row:hover .vr-why-num { color: #D4521A; transform: scale(1.08); }
   .vr-why-num {
     display: inline-block;
     transition: color 0.2s, transform 0.2s;
@@ -86,10 +137,9 @@ const PAGE_CSS = `
   .vr-method-row {
     display: flex; align-items: center;
     justify-content: space-between;
-    padding: 18px 12px 18px 0;
+    padding: 18px 12px 18px 14px;
     border-bottom: 1px solid #E2DED9;
     border-left: 2px solid transparent;
-    padding-left: 14px;
     gap: 16px;
     transition: border-left-color 0.22s, background 0.22s, padding-left 0.22s;
     cursor: default;
@@ -99,11 +149,8 @@ const PAGE_CSS = `
     background: rgba(232,96,28,0.035);
     padding-left: 20px;
   }
-  .vr-method-row-active {
-    border-left-color: #E8601C;
-  }
+  .vr-method-row-active { border-left-color: #E8601C; }
 
-  /* Platform section label glow */
   .vr-platform-label {
     font-size: 10px; font-weight: 700;
     letter-spacing: 0.14em; text-transform: uppercase;
@@ -145,7 +192,6 @@ const PAGE_CSS = `
   }
   .vr-btn-ghost:hover { border-color:rgba(240,237,232,0.6); color:#fff; transform:translateY(-2px); }
 
-  /* Stat pills in hero */
   .vr-stat-pill {
     padding:7px 16px;
     background:rgba(255,255,255,0.05);
@@ -158,7 +204,7 @@ const PAGE_CSS = `
   }
   .vr-stat-pill:hover { transform:scale(1.04); }
 
-  /* Why cards (now list rows) */
+  /* Why cards */
   .vr-why-row {
     border-bottom:1px solid #E2DED9;
     padding:32px 0;
@@ -178,22 +224,112 @@ const PAGE_CSS = `
   .vr-step-card.revealed { opacity:1; transform:translateX(0); }
   .vr-step-card:hover { border-left-color:#E8601C; }
 
-  /* Footer links */
   .vr-footer-link {
     font-size:12px; color:rgba(240,237,232,0.78);
     text-decoration:none; transition:color 0.2s;
   }
   .vr-footer-link:hover { color:#E8601C; }
 
-  /* Reveal utility */
   .vr-reveal {
     opacity:0; transform:translateY(24px);
     transition: opacity 0.6s ease, transform 0.6s ease;
   }
   .vr-reveal.revealed { opacity:1; transform:translateY(0); }
+
+  /* ── Responsive layout classes ─────────────────────── */
+  .vr-hero-section   { padding: 120px 48px 80px; }
+  .vr-why-section    { padding: 96px 48px; }
+  .vr-hiw-section    { padding: 96px 48px; }
+  .vr-platform-section { padding: 96px 48px; }
+  .vr-footer-section { padding: 24px 48px; }
+
+  .vr-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 72px;
+    align-items: center;
+  }
+  .vr-why-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 16px;
+    padding-bottom: 28px;
+    border-bottom: 2px solid #0A0A0A;
+  }
+  .vr-why-grid {
+    display: grid;
+    grid-template-columns: 64px 1fr 2fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .vr-step-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 64px;
+  }
+  .vr-platform-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .vr-footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .vr-footer-links {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ── Tablet ≤ 768px ────────────────────────────────── */
+  @media (max-width: 768px) {
+    .vr-nav-inner        { padding: 0 20px; }
+    .vr-hamburger        { display: flex; }
+    .vr-nav-desktop-links { display: none; }
+    .vr-nav-desktop-cta  { display: none; }
+
+    .vr-hero-section     { padding: 96px 24px 64px; }
+    .vr-why-section      { padding: 72px 24px; }
+    .vr-hiw-section      { padding: 72px 24px; }
+    .vr-platform-section { padding: 72px 24px; }
+    .vr-footer-section   { padding: 24px 24px; }
+
+    .vr-hero-grid        { grid-template-columns: 1fr; gap: 48px; }
+    .vr-platform-grid    { grid-template-columns: 1fr; gap: 40px; }
+
+    .vr-why-heading { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+
+  /* ── Mobile ≤ 640px ────────────────────────────────── */
+  @media (max-width: 640px) {
+    .vr-hero-section  { padding: 88px 20px 56px; }
+    .vr-why-section   { padding: 60px 20px; }
+    .vr-hiw-section   { padding: 60px 20px; }
+    .vr-platform-section { padding: 60px 20px; }
+    .vr-footer-section   { padding: 20px 20px 28px; }
+
+    .vr-step-grid  { grid-template-columns: 1fr; gap: 32px; }
+
+    .vr-why-grid {
+      grid-template-columns: auto 1fr;
+      gap: 8px 12px;
+    }
+    .vr-why-body { grid-column: 1 / -1; }
+
+    .vr-footer-inner  { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .vr-footer-links  { gap: 16px; }
+  }
 `;
 
-// ── useReveal hook ────────────────────────────────────────────────────────────
 function useReveal(delay = 0) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -214,9 +350,10 @@ function useReveal(delay = 0) {
   return ref as React.RefObject<HTMLDivElement>;
 }
 
-// ── Navbar ────────────────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', h, { passive: true });
@@ -224,76 +361,81 @@ function Navbar() {
   }, []);
 
   return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      height: 58,
-      background: C.black,
-      display: 'flex', alignItems: 'center',
-      padding: '0 48px',
-      borderBottom: `1px solid ${scrolled ? 'rgba(255,255,255,0.08)' : 'transparent'}`,
-      boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.5)' : 'none',
-      transition: 'border-color 0.3s, box-shadow 0.3s',
-    }}>
-      {/* Logo — left */}
-      <Link to="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-        <VerusLogo size={30} wordmarkColor="#F0EDE8" />
-      </Link>
-
-      {/* Nav links — absolutely centered */}
-      <div style={{
-        position: 'absolute', left: '50%', top: '50%',
-        transform: 'translate(-50%, -50%)',
-        display: 'flex', alignItems: 'center', gap: 32,
+    <>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        height: 58,
+        background: C.black,
+        borderBottom: `1px solid ${scrolled ? 'rgba(255,255,255,0.08)' : 'transparent'}`,
+        boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.5)' : 'none',
+        transition: 'border-color 0.3s, box-shadow 0.3s',
       }}>
-        <Link to="/" className="vr-nav-link">Home</Link>
-        <Link to="/team" className="vr-nav-link">Team</Link>
-      </div>
+        <div className="vr-nav-inner">
+          <Link to="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <VerusLogo size={30} wordmarkColor="#F0EDE8" />
+          </Link>
 
-      {/* Auth — right */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 22, flexShrink: 0 }}>
-        <Link to="/waitlist" className="vr-nav-signup">Join the Waitlist</Link>
+          <div className="vr-nav-desktop-links">
+            <Link to="/" className="vr-nav-link">Home</Link>
+            <Link to="/team" className="vr-nav-link">Team</Link>
+          </div>
+
+          <div className="vr-nav-desktop-cta">
+            <Link to="/waitlist" className="vr-nav-signup">Join the Waitlist</Link>
+          </div>
+
+          <button
+            className="vr-hamburger"
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Toggle menu"
+          >
+            <span style={{ transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none' }} />
+            <span style={{ opacity: menuOpen ? 0 : 1 }} />
+            <span style={{ transform: menuOpen ? 'translateY(-7px) rotate(-45deg)' : 'none' }} />
+          </button>
+        </div>
+      </nav>
+
+      <div className={`vr-mobile-menu${menuOpen ? ' open' : ''}`}>
+        <Link to="/" className="vr-mobile-menu-link" onClick={() => setMenuOpen(false)}>Home</Link>
+        <Link to="/team" className="vr-mobile-menu-link" onClick={() => setMenuOpen(false)}>Team</Link>
+        <Link
+          to="/waitlist"
+          className="vr-nav-signup"
+          style={{ marginTop: 16, textAlign: 'center' }}
+          onClick={() => setMenuOpen(false)}
+        >
+          Join the Waitlist
+        </Link>
       </div>
-    </nav>
+    </>
   );
 }
 
-// ── Hero — left-aligned split layout ─────────────────────────────────────────
 function Hero() {
   return (
-    <section style={{
+    <section className="vr-hero-section" style={{
       background: C.black,
       minHeight: '100vh',
       display: 'flex', alignItems: 'center',
       position: 'relative', overflow: 'hidden',
-      padding: '120px 48px 80px',
     }}>
-      {/* Dot grid */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 1,
         backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)`,
         backgroundSize: '32px 32px',
         animation: 'drift 26s ease-in-out infinite',
       }} />
-      {/* Edge vignette */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 2,
         background: 'radial-gradient(ellipse 100% 80% at 50% 50%, transparent 20%, rgba(10,10,10,0.75) 100%)',
       }} />
 
       <div style={{ maxWidth: 1080, margin: '0 auto', width: '100%', position: 'relative', zIndex: 3 }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 72,
-          alignItems: 'center',
-        }}>
+        <div className="vr-hero-grid">
           {/* Left — copy */}
           <div>
-            {/* Eyebrow */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              marginBottom: 32,
-            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
               <div style={{ width: 28, height: 1.5, background: C.orange }} />
               <span style={{
                 fontSize: 10, fontWeight: 700, letterSpacing: '0.16em',
@@ -303,9 +445,8 @@ function Hero() {
               </span>
             </div>
 
-            {/* Headline */}
             <h1 style={{
-              fontSize: 'clamp(36px, 5.5vw, 68px)',
+              fontSize: 'clamp(32px, 5.5vw, 68px)',
               fontWeight: 800, color: '#FFFFFF',
               lineHeight: 1.07, margin: '0 0 22px',
               letterSpacing: '-0.03em',
@@ -324,13 +465,11 @@ function Hero() {
               Get same-day reports. No manual processing required.
             </p>
 
-            {/* CTAs */}
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 44 }}>
               <Link to="/waitlist" className="vr-btn-primary">Join the Waitlist</Link>
               <a href="#why-verus" className="vr-btn-ghost">Learn More</a>
             </div>
 
-            {/* Stat pills */}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {['600,000+ US Bridges', 'Same-Day Reporting', 'Multi-Standard Compliant'].map(s => (
                 <div key={s} className="vr-stat-pill">{s}</div>
@@ -340,14 +479,12 @@ function Hero() {
 
           {/* Right — abstract interface panel */}
           <div style={{ position: 'relative' }}>
-            {/* Outer frame */}
             <div style={{
               border: `1px solid rgba(255,255,255,0.1)`,
               background: 'rgba(255,255,255,0.025)',
               backdropFilter: 'blur(6px)',
               padding: 2,
             }}>
-              {/* Title bar */}
               <div style={{
                 background: 'rgba(255,255,255,0.04)',
                 borderBottom: `1px solid rgba(255,255,255,0.07)`,
@@ -364,7 +501,6 @@ function Hero() {
                 </span>
               </div>
 
-              {/* C-scan placeholder grid */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(11, 1fr)',
@@ -376,7 +512,6 @@ function Hero() {
                 {Array.from({ length: 88 }).map((_, i) => {
                   const row = Math.floor(i / 11);
                   const col = i % 11;
-                  // Fake delamination pattern
                   const isHot = (row >= 2 && row <= 4 && col >= 3 && col <= 6)
                               || (row >= 5 && row <= 6 && col >= 7 && col <= 9);
                   const isMid = (row >= 1 && row <= 5 && col >= 2 && col <= 7 && !isHot);
@@ -394,7 +529,6 @@ function Hero() {
                 })}
               </div>
 
-              {/* Bottom status bar */}
               <div style={{
                 borderTop: `1px solid rgba(255,255,255,0.06)`,
                 background: 'rgba(255,255,255,0.02)',
@@ -423,12 +557,10 @@ function Hero() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <div style={{
         position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
         zIndex: 3,
@@ -444,7 +576,6 @@ function Hero() {
   );
 }
 
-// ── Why Verus — numbered list rows ────────────────────────────────────────────
 const WHY_ITEMS = [
   {
     num: '01',
@@ -496,17 +627,9 @@ function WhyVerus() {
   }, []);
 
   return (
-    <section id="why-verus" style={{ background: C.offWhite, padding: '96px 48px' }}>
+    <section id="why-verus" className="vr-why-section" style={{ background: C.offWhite }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-
-        {/* Heading row */}
-        <div ref={headRef} className="vr-reveal" style={{
-          display: 'flex', alignItems: 'flex-end',
-          justifyContent: 'space-between', gap: 40,
-          marginBottom: 16,
-          paddingBottom: 28,
-          borderBottom: `2px solid ${C.black}`,
-        }}>
+        <div ref={headRef} className="vr-reveal vr-why-heading">
           <h2 style={{
             fontSize: 'clamp(26px, 3.5vw, 42px)',
             fontWeight: 800, color: C.black, margin: 0,
@@ -523,16 +646,10 @@ function WhyVerus() {
           </p>
         </div>
 
-        {/* Numbered rows */}
         <div>
           {WHY_ITEMS.map((item, i) => (
             <div key={item.num} ref={rows[i]} className="vr-why-row">
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '64px 1fr 2fr',
-                gap: 32,
-                alignItems: 'start',
-              }}>
+              <div className="vr-why-grid">
                 <span className="vr-why-num" style={{
                   fontSize: 11, fontWeight: 800,
                   color: C.orange, letterSpacing: '0.04em',
@@ -547,7 +664,7 @@ function WhyVerus() {
                 }}>
                   {item.title}
                 </h3>
-                <p style={{ fontSize: 14, color: C.textGray, lineHeight: 1.75, margin: 0 }}>
+                <p className="vr-why-body" style={{ fontSize: 14, color: C.textGray, lineHeight: 1.75, margin: 0 }}>
                   {item.body}
                 </p>
               </div>
@@ -559,7 +676,6 @@ function WhyVerus() {
   );
 }
 
-// ── Black Stripe: Ticker ───────────────────────────────────────────────────────
 function TickerStripe() {
   const items = [
     'INFRASTRUCTURE INSPECTION',
@@ -580,14 +696,7 @@ function TickerStripe() {
   return (
     <div style={{
       background: C.black,
-      /* Diagonal hairline pattern */
-      backgroundImage: `repeating-linear-gradient(
-        -55deg,
-        transparent,
-        transparent 18px,
-        rgba(255,255,255,0.013) 18px,
-        rgba(255,255,255,0.013) 19px
-      )`,
+      backgroundImage: `repeating-linear-gradient(-55deg, transparent, transparent 18px, rgba(255,255,255,0.013) 18px, rgba(255,255,255,0.013) 19px)`,
       borderTop: `2px solid ${C.orange}`,
       borderBottom: `1px solid rgba(255,255,255,0.07)`,
       padding: '20px 0',
@@ -608,7 +717,6 @@ function TickerStripe() {
   );
 }
 
-// ── How It Works — vertical steps on off-white ────────────────────────────────
 const STEPS = [
   {
     num: '01',
@@ -655,7 +763,7 @@ function HowItWorks() {
   }, []);
 
   return (
-    <section id="how-it-works" style={{ background: C.offWhite, padding: '96px 48px' }}>
+    <section id="how-it-works" className="vr-hiw-section" style={{ background: C.offWhite }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <div ref={headRef} className="vr-reveal" style={{ marginBottom: 72 }}>
           <p style={{
@@ -673,13 +781,7 @@ function HowItWorks() {
           </h2>
         </div>
 
-        {/* Vertical steps */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: 40,
-          marginBottom: 64,
-        }}>
+        <div className="vr-step-grid">
           {STEPS.map((step, i) => (
             <div key={step.num} ref={stepRefs[i]} className="vr-step-card">
               <div style={{
@@ -710,7 +812,6 @@ function HowItWorks() {
   );
 }
 
-// ── Method marquee divider ────────────────────────────────────────────────────
 function MethodSlider() {
   const items = [
     { name: 'GROUND-PENETRATING RADAR',               standard: 'ASTM D6087' },
@@ -732,13 +833,7 @@ function MethodSlider() {
   return (
     <div style={{
       background: C.black,
-      backgroundImage: `repeating-linear-gradient(
-        -55deg,
-        transparent,
-        transparent 18px,
-        rgba(255,255,255,0.013) 18px,
-        rgba(255,255,255,0.013) 19px
-      )`,
+      backgroundImage: `repeating-linear-gradient(-55deg, transparent, transparent 18px, rgba(255,255,255,0.013) 18px, rgba(255,255,255,0.013) 19px)`,
       borderTop: `2px solid ${C.orange}`,
       borderBottom: `1px solid rgba(255,255,255,0.07)`,
       padding: '20px 0',
@@ -759,7 +854,6 @@ function MethodSlider() {
   );
 }
 
-// ── Our Platform ──────────────────────────────────────────────────────────────
 const METHODS = [
   { label: 'Ground-Penetrating Radar',               short: 'GPR',  active: true  },
   { label: 'Multichannel Analysis of Surface Waves', short: 'MASW', active: false },
@@ -771,14 +865,9 @@ function OurPlatform() {
   const listRef = useReveal(120);
 
   return (
-    <section style={{ background: C.offWhite, padding: '96px 48px' }}>
+    <section className="vr-platform-section" style={{ background: C.offWhite }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-        <div ref={ref} className="vr-reveal" style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 80, alignItems: 'start',
-        }}>
-          {/* Left */}
+        <div ref={ref} className="vr-reveal vr-platform-grid">
           <div>
             <p className="vr-platform-label">Our Platform</p>
             <h2 style={{
@@ -798,14 +887,10 @@ function OurPlatform() {
             <Link to="/waitlist" className="vr-btn-primary">Join the Waitlist</Link>
           </div>
 
-          {/* Right — method table */}
           <div ref={listRef} className="vr-reveal">
             <div style={{ borderTop: `2px solid ${C.black}` }}>
               {METHODS.map(m => (
-                <div
-                  key={m.label}
-                  className={`vr-method-row${m.active ? ' vr-method-row-active' : ''}`}
-                >
+                <div key={m.label} className={`vr-method-row${m.active ? ' vr-method-row-active' : ''}`}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <span style={{
                       fontSize: 10, fontWeight: 800,
@@ -845,39 +930,34 @@ function OurPlatform() {
   );
 }
 
-// ── Footer — compact single band ──────────────────────────────────────────────
 function Footer() {
   return (
-    <footer style={{
+    <footer className="vr-footer-section" style={{
       background: C.black,
       borderTop: `1px solid rgba(255,255,255,0.07)`,
-      padding: '24px 48px',
     }}>
-      <div style={{
-        maxWidth: 1080, margin: '0 auto',
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', gap: 24, flexWrap: 'wrap',
-      }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <VerusLogo size={26} wordmarkColor="rgba(240,237,232,0.8)" />
-        </Link>
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+        <div className="vr-footer-inner">
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <VerusLogo size={26} wordmarkColor="rgba(240,237,232,0.8)" />
+          </Link>
 
-        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-          <Link to="/" className="vr-footer-link">Home</Link>
-          <Link to="/team" className="vr-footer-link">Team</Link>
-          <Link to="/waitlist" className="vr-footer-link">Join the Waitlist</Link>
-          <a href="mailto:hello@verus.ai" className="vr-footer-link">hello@verus.ai</a>
+          <div className="vr-footer-links">
+            <Link to="/" className="vr-footer-link">Home</Link>
+            <Link to="/team" className="vr-footer-link">Team</Link>
+            <Link to="/waitlist" className="vr-footer-link">Join the Waitlist</Link>
+            <a href="mailto:hello@verus.ai" className="vr-footer-link">hello@verus.ai</a>
+          </div>
+
+          <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.55)', margin: 0 }}>
+            © {new Date().getFullYear()} Verus Technologies, Inc.
+          </p>
         </div>
-
-        <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.55)', margin: 0 }}>
-          © {new Date().getFullYear()} Verus Technologies, Inc.
-        </p>
       </div>
     </footer>
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default function HomePage() {
   return (
     <div style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', overflowX: 'hidden' }}>

@@ -14,22 +14,23 @@ const C = {
 };
 
 const PAGE_CSS = `
+  .wl-nav-inner {
+    display: flex; align-items: center;
+    width: 100%; height: 58px;
+    padding: 0 48px;
+  }
   .wl-nav-link {
     position: relative;
     color: rgba(240,237,232,0.7);
     text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.03em;
-    padding-bottom: 2px;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: 0.03em; padding-bottom: 2px;
     transition: color 0.2s;
   }
   .wl-nav-link::after {
     content: '';
-    position: absolute;
-    left: 0; bottom: 0;
-    height: 1.5px;
-    width: 0;
+    position: absolute; left: 0; bottom: 0;
+    height: 1.5px; width: 0;
     background: ${C.orange};
     transition: width 0.25s ease;
   }
@@ -41,15 +42,58 @@ const PAGE_CSS = `
     padding: 8px 20px;
     background: ${C.orange};
     color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border: none;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    text-decoration: none; border: none;
     transition: transform 0.18s, background 0.18s;
   }
   .wl-nav-signup:hover { background: ${C.orangeDk}; transform: translateY(-2px); }
+
+  .wl-nav-desktop-links {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; align-items: center; gap: 32px;
+  }
+  .wl-nav-desktop-cta {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 22px; flex-shrink: 0;
+  }
+  .wl-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    background: none; border: none;
+    padding: 6px; margin-left: auto; flex-shrink: 0;
+  }
+  .wl-hamburger span {
+    display: block;
+    width: 20px; height: 2px;
+    background: rgba(240,237,232,0.85);
+    border-radius: 1px;
+    transition: transform 0.22s, opacity 0.22s;
+  }
+  .wl-mobile-menu {
+    display: none;
+    position: fixed;
+    top: 58px; left: 0; right: 0;
+    background: #0A0A0A;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 4px 24px 20px;
+    flex-direction: column;
+    z-index: 99;
+  }
+  .wl-mobile-menu.open { display: flex; }
+  .wl-mobile-menu-link {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(240,237,232,0.75);
+    font-size: 15px; font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .wl-mobile-menu-link:hover { color: #F0EDE8; }
 
   .wl-footer-link {
     color: rgba(240,237,232,0.5);
@@ -80,10 +124,8 @@ const PAGE_CSS = `
     padding: 14px;
     background: ${C.orange};
     color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.09em; text-transform: uppercase;
     border: 2px solid ${C.orange};
     cursor: pointer;
     transition: background 0.18s, transform 0.18s;
@@ -91,6 +133,36 @@ const PAGE_CSS = `
   }
   .wl-btn:hover:not(:disabled) { background: ${C.orangeDk}; border-color: ${C.orangeDk}; transform: translateY(-1px); }
   .wl-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Layout classes */
+  .wl-main-pad { padding: 80px 24px; }
+  .wl-footer-section { padding: 24px 48px; }
+  .wl-footer-inner {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; gap: 24px;
+  }
+  .wl-footer-links {
+    display: flex; gap: 24px;
+    align-items: center; flex-wrap: wrap;
+  }
+
+  /* ── Tablet ≤ 768px ─── */
+  @media (max-width: 768px) {
+    .wl-nav-inner         { padding: 0 20px; }
+    .wl-hamburger         { display: flex; }
+    .wl-nav-desktop-links { display: none; }
+    .wl-nav-desktop-cta   { display: none; }
+
+    .wl-footer-section { padding: 24px 20px; }
+  }
+
+  /* ── Mobile ≤ 640px ─── */
+  @media (max-width: 640px) {
+    .wl-main-pad { padding: 48px 16px; }
+    .wl-footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .wl-footer-links { gap: 16px; }
+  }
 `;
 
 export default function WaitlistPage() {
@@ -102,6 +174,7 @@ export default function WaitlistPage() {
   const [alreadyOnList, setAlreadyOnList] = useState(false);
   const [errorBanner, setErrorBanner] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ fullName?: string; email?: string }>({});
+  const [menuOpen, setMenuOpen]   = useState(false);
 
   const validate = () => {
     const errs: { fullName?: string; email?: string } = {};
@@ -153,37 +226,45 @@ export default function WaitlistPage() {
         position: 'sticky', top: 0, zIndex: 100,
         background: C.black,
         borderBottom: `1px solid ${C.borderDk}`,
-        padding: '0 48px',
-        height: 58,
-        display: 'flex', alignItems: 'center',
         flexShrink: 0,
       }}>
-        <Link to="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <VerusLogo size={30} wordmarkColor="#F0EDE8" />
-        </Link>
-
-        <div style={{
-          position: 'absolute', left: '50%', top: '50%',
-          transform: 'translate(-50%, -50%)',
-          display: 'flex', alignItems: 'center', gap: 32,
-        }}>
-          <Link to="/" className="wl-nav-link">Home</Link>
-          <Link to="/team" className="wl-nav-link">Team</Link>
-        </div>
-
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 22, flexShrink: 0 }}>
-          <Link to="/waitlist" className="wl-nav-signup" style={{ background: C.black, border: `2px solid ${C.orange}`, color: C.orange }}>
-            Join the Waitlist
+        <div className="wl-nav-inner">
+          <Link to="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <VerusLogo size={30} wordmarkColor="#F0EDE8" />
           </Link>
+
+          <div className="wl-nav-desktop-links">
+            <Link to="/" className="wl-nav-link">Home</Link>
+            <Link to="/team" className="wl-nav-link">Team</Link>
+          </div>
+
+          <div className="wl-nav-desktop-cta">
+            <Link to="/waitlist" className="wl-nav-signup" style={{ background: C.black, border: `2px solid ${C.orange}`, color: C.orange }}>
+              Join the Waitlist
+            </Link>
+          </div>
+
+          <button className="wl-hamburger" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
+            <span style={{ transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none' }} />
+            <span style={{ opacity: menuOpen ? 0 : 1 }} />
+            <span style={{ transform: menuOpen ? 'translateY(-7px) rotate(-45deg)' : 'none' }} />
+          </button>
         </div>
       </nav>
 
+      <div className={`wl-mobile-menu${menuOpen ? ' open' : ''}`}>
+        <Link to="/" className="wl-mobile-menu-link" onClick={() => setMenuOpen(false)}>Home</Link>
+        <Link to="/team" className="wl-mobile-menu-link" onClick={() => setMenuOpen(false)}>Team</Link>
+        <Link to="/waitlist" className="wl-nav-signup" style={{ marginTop: 16, textAlign: 'center' }} onClick={() => setMenuOpen(false)}>
+          Join the Waitlist
+        </Link>
+      </div>
+
       {/* ── Main content ── */}
-      <main style={{
+      <main className="wl-main-pad" style={{
         flex: 1,
         background: C.offWhite,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '80px 24px',
       }}>
         <div style={{
           width: '100%', maxWidth: 480,
@@ -192,7 +273,6 @@ export default function WaitlistPage() {
           padding: '48px 40px',
         }}>
           {success ? (
-            /* ── Success state ── */
             <div style={{ textAlign: 'center' }}>
               <div style={{
                 width: 56, height: 56,
@@ -213,7 +293,6 @@ export default function WaitlistPage() {
               </p>
             </div>
           ) : (
-            /* ── Form ── */
             <>
               <div style={{ marginBottom: 32 }}>
                 <h1 style={{ fontSize: 26, fontWeight: 800, color: C.black, margin: '0 0 12px', letterSpacing: '-0.025em' }}>
@@ -226,8 +305,7 @@ export default function WaitlistPage() {
 
               {alreadyOnList && (
                 <div style={{
-                  marginBottom: 20,
-                  padding: '12px 16px',
+                  marginBottom: 20, padding: '12px 16px',
                   background: 'rgba(232,96,28,0.08)',
                   border: `1.5px solid ${C.orange}`,
                   fontSize: 13, color: C.black,
@@ -238,8 +316,7 @@ export default function WaitlistPage() {
 
               {errorBanner && (
                 <div style={{
-                  marginBottom: 20,
-                  padding: '12px 16px',
+                  marginBottom: 20, padding: '12px 16px',
                   background: '#FFF5F5',
                   border: '1.5px solid #E53E3E',
                   fontSize: 13, color: '#742A2A',
@@ -304,31 +381,28 @@ export default function WaitlistPage() {
       </main>
 
       {/* ── Footer ── */}
-      <footer style={{
+      <footer className="wl-footer-section" style={{
         background: C.black,
         borderTop: `1px solid ${C.borderDk}`,
-        padding: '24px 48px',
         flexShrink: 0,
       }}>
-        <div style={{
-          maxWidth: 1080, margin: '0 auto',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 24,
-        }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <VerusLogo size={26} wordmarkColor="rgba(240,237,232,0.8)" />
-          </Link>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div className="wl-footer-inner">
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <VerusLogo size={26} wordmarkColor="rgba(240,237,232,0.8)" />
+            </Link>
 
-          <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            <Link to="/" className="wl-footer-link">Home</Link>
-            <Link to="/team" className="wl-footer-link">Team</Link>
-            <Link to="/waitlist" className="wl-footer-link">Join the Waitlist</Link>
-            <a href="mailto:hello@verus.ai" className="wl-footer-link">hello@verus.ai</a>
+            <div className="wl-footer-links">
+              <Link to="/" className="wl-footer-link">Home</Link>
+              <Link to="/team" className="wl-footer-link">Team</Link>
+              <Link to="/waitlist" className="wl-footer-link">Join the Waitlist</Link>
+              <a href="mailto:hello@verus.ai" className="wl-footer-link">hello@verus.ai</a>
+            </div>
+
+            <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.55)', margin: 0 }}>
+              © {new Date().getFullYear()} Verus Technologies, Inc.
+            </p>
           </div>
-
-          <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.55)', margin: 0 }}>
-            © {new Date().getFullYear()} Verus Technologies, Inc.
-          </p>
         </div>
       </footer>
     </div>

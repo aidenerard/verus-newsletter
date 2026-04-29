@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
 const C = {
@@ -26,8 +26,7 @@ const PAGE_CSS = `
     content: '';
     position: absolute;
     left: 0; bottom: 0;
-    height: 1.5px;
-    width: 0;
+    height: 1.5px; width: 0;
     background: ${C.orange};
     transition: width 0.25s ease;
   }
@@ -39,12 +38,9 @@ const PAGE_CSS = `
     padding: 8px 20px;
     background: ${C.orange};
     color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border: none;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    text-decoration: none; border: none;
     transition: transform 0.18s, background 0.18s;
   }
   .tm-nav-signup:hover { background: #D4521A; transform: translateY(-2px); }
@@ -74,9 +70,97 @@ const PAGE_CSS = `
     transform: translateY(24px);
     transition: opacity 0.55s ease, transform 0.55s ease;
   }
-  .tm-reveal.revealed {
-    opacity: 1;
-    transform: translateY(0);
+  .tm-reveal.revealed { opacity: 1; transform: translateY(0); }
+
+  /* Nav desktop/mobile split */
+  .tm-nav-inner {
+    display: flex; align-items: center;
+    width: 100%; height: 58px;
+    padding: 0 48px;
+  }
+  .tm-nav-desktop-links {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; align-items: center; gap: 32px;
+  }
+  .tm-nav-desktop-cta {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 22px; flex-shrink: 0;
+  }
+  .tm-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    background: none; border: none;
+    padding: 6px; margin-left: auto; flex-shrink: 0;
+  }
+  .tm-hamburger span {
+    display: block;
+    width: 20px; height: 2px;
+    background: rgba(240,237,232,0.85);
+    border-radius: 1px;
+    transition: transform 0.22s, opacity 0.22s;
+  }
+  .tm-mobile-menu {
+    display: none;
+    position: fixed;
+    top: 58px; left: 0; right: 0;
+    background: #0A0A0A;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 4px 24px 20px;
+    flex-direction: column;
+    z-index: 99;
+  }
+  .tm-mobile-menu.open { display: flex; }
+  .tm-mobile-menu-link {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(240,237,232,0.75);
+    font-size: 15px; font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .tm-mobile-menu-link:hover { color: #F0EDE8; }
+
+  /* Layout classes */
+  .tm-hero-section { padding: 100px 48px 80px; }
+  .tm-founders-section { padding: 80px 48px 96px; }
+  .tm-founders-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .tm-footer-section { padding: 52px 48px; }
+  .tm-footer-inner {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; gap: 24px;
+  }
+
+  /* ── Tablet ≤ 768px ─── */
+  @media (max-width: 768px) {
+    .tm-nav-inner         { padding: 0 20px; }
+    .tm-hamburger         { display: flex; }
+    .tm-nav-desktop-links { display: none; }
+    .tm-nav-desktop-cta   { display: none; }
+
+    .tm-hero-section     { padding: 80px 24px 60px; }
+    .tm-founders-section { padding: 56px 24px 72px; }
+    .tm-footer-section   { padding: 36px 24px; }
+
+    .tm-founders-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Mobile ≤ 640px ─── */
+  @media (max-width: 640px) {
+    .tm-hero-section     { padding: 72px 20px 52px; }
+    .tm-founders-section { padding: 48px 20px 64px; }
+    .tm-footer-section   { padding: 28px 20px; }
+
+    .tm-card { padding: 20px; gap: 16px; }
+    .tm-footer-inner { flex-direction: column; align-items: flex-start; }
   }
 `;
 
@@ -103,22 +187,36 @@ function useReveal(delay = 0) {
 interface Founder {
   name: string;
   title: string;
-  photo: string;
-  bio: string;
+  initials: string;
+  photo?: string;
+  bullets: string[];
 }
 
 const FOUNDERS: Founder[] = [
   {
     name: 'Aiden Erard',
-    title: 'CEO & Co-Founder',
+    title: 'CEO',
+    initials: 'AE',
     photo: '/aiden.png',
-    bio: 'Aiden is studying Computer Engineering at Georgia Tech, where he researches bipedal robotics and autonomous navigation. He has won multiple hackathons, building real-time telemetry systems and multi-API integrations. He also brings experience in scaling businesses, marketing, and customer discovery.',
+    bullets: [
+      'Computer Engineering at Georgia Tech',
+      'Researching bipedal robotics and autonomous navigation',
+      'Won multiple hackathons — built real-time telemetry systems and multi-API integrations',
+      'Experience scaling businesses, marketing, and customer discovery',
+    ],
   },
   {
     name: 'Taran Govindu',
-    title: 'CTO & Co-Founder',
+    title: 'CTO',
+    initials: 'TG',
     photo: '/taran.png',
-    bio: 'Taran is studying Aerospace Engineering at Georgia Tech, where he researches AI-accelerated simulation. He has built neural networks for exoplanet detection and medical diagnostics achieving 98%+ accuracy, published peer-reviewed research with over 5,000 reads, and designed rocket propulsion systems and simulations.',
+    bullets: [
+      'Aerospace Engineering at Georgia Tech',
+      'Researching AI-accelerated simulation',
+      'Built neural networks for exoplanet detection and medical diagnostics (98%+ accuracy)',
+      'Published peer-reviewed research (5,000+ reads)',
+      'Designed rocket propulsion systems and simulations',
+    ],
   },
 ];
 
@@ -139,7 +237,6 @@ function FounderCard({ founder, delay }: { founder: Founder; delay: number }) {
         }}
       />
 
-      {/* Text */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <h3 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: C.black }}>
           {founder.name}
@@ -157,7 +254,8 @@ function FounderCard({ founder, delay }: { founder: Founder; delay: number }) {
           color: C.textGray,
           lineHeight: 1.75,
         }}>
-          {founder.bio}
+          {/* Render bullets as inline sentences */}
+          {founder.bullets.join('. ')}.
         </p>
       </div>
     </div>
@@ -168,6 +266,7 @@ export default function TeamPage() {
   const heroRef    = useReveal(0);
   const labelRef   = useReveal(80);
   const taglineRef = useReveal(160);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif', overflowX: 'hidden' }}>
@@ -178,38 +277,43 @@ export default function TeamPage() {
         position: 'sticky', top: 0, zIndex: 100,
         background: C.black,
         borderBottom: `1px solid ${C.borderDk}`,
-        padding: '0 48px',
-        height: 58,
-        display: 'flex', alignItems: 'center',
       }}>
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          <img src="/verus-logo.png" alt="Verus"
-            style={{ width: 30, height: 30, objectFit: 'contain', display: 'block' }} />
-          <span style={{ color: '#F0EDE8', fontSize: 14, fontWeight: 700, letterSpacing: '0.04em' }}>
-            VERUS
-          </span>
-        </Link>
+        <div className="tm-nav-inner">
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <img src="/verus-logo.png" alt="Verus"
+              style={{ width: 30, height: 30, objectFit: 'contain', display: 'block' }} />
+            <span style={{ color: '#F0EDE8', fontSize: 14, fontWeight: 700, letterSpacing: '0.04em' }}>
+              VERUS
+            </span>
+          </Link>
 
-        <div style={{
-          position: 'absolute', left: '50%', top: '50%',
-          transform: 'translate(-50%, -50%)',
-          display: 'flex', alignItems: 'center', gap: 32,
-        }}>
-          <Link to="/" className="tm-nav-link">Home</Link>
-          <Link to="/team" className="tm-nav-link" style={{ color: '#F0EDE8' }}>Team</Link>
-        </div>
+          <div className="tm-nav-desktop-links">
+            <Link to="/" className="tm-nav-link">Home</Link>
+            <Link to="/team" className="tm-nav-link" style={{ color: '#F0EDE8' }}>Team</Link>
+          </div>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 22, flexShrink: 0 }}>
-          <Link to="/waitlist" className="tm-nav-signup">Join the Waitlist</Link>
+          <div className="tm-nav-desktop-cta">
+            <Link to="/waitlist" className="tm-nav-signup">Join the Waitlist</Link>
+          </div>
+
+          <button className="tm-hamburger" onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu">
+            <span style={{ transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none' }} />
+            <span style={{ opacity: menuOpen ? 0 : 1 }} />
+            <span style={{ transform: menuOpen ? 'translateY(-7px) rotate(-45deg)' : 'none' }} />
+          </button>
         </div>
       </nav>
 
+      <div className={`tm-mobile-menu${menuOpen ? ' open' : ''}`}>
+        <Link to="/" className="tm-mobile-menu-link" onClick={() => setMenuOpen(false)}>Home</Link>
+        <Link to="/team" className="tm-mobile-menu-link" onClick={() => setMenuOpen(false)}>Team</Link>
+        <Link to="/waitlist" className="tm-nav-signup" style={{ marginTop: 16, textAlign: 'center' }} onClick={() => setMenuOpen(false)}>
+          Join the Waitlist
+        </Link>
+      </div>
+
       {/* ── Hero ── */}
-      <section style={{
-        background: C.black,
-        padding: '100px 48px 80px',
-        textAlign: 'center',
-      }}>
+      <section className="tm-hero-section" style={{ background: C.black, textAlign: 'center' }}>
         <div ref={labelRef} className="tm-reveal" style={{
           display: 'inline-block',
           fontSize: 10, fontWeight: 700, letterSpacing: '0.14em',
@@ -243,16 +347,9 @@ export default function TeamPage() {
       </section>
 
       {/* ── Founders ── */}
-      <section style={{
-        background: C.offWhite,
-        padding: '80px 48px 96px',
-      }}>
+      <section className="tm-founders-section" style={{ background: C.offWhite }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-            gap: 24,
-          }}>
+          <div className="tm-founders-grid">
             {FOUNDERS.map((founder, i) => (
               <FounderCard key={founder.name} founder={founder} delay={i * 120} />
             ))}
@@ -261,28 +358,25 @@ export default function TeamPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{
+      <footer className="tm-footer-section" style={{
         background: C.black,
         borderTop: `1px solid ${C.borderDk}`,
-        padding: '52px 48px',
       }}>
-        <div style={{
-          maxWidth: 1080, margin: '0 auto',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 24,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src="/verus-logo.png" alt="Verus"
-              style={{ width: 28, height: 28, objectFit: 'contain', opacity: 0.8 }} />
-            <span style={{ color: 'rgba(240,237,232,0.4)', fontSize: 12 }}>
-              © {new Date().getFullYear()} Verus
-            </span>
-          </div>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div className="tm-footer-inner">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <img src="/verus-logo.png" alt="Verus"
+                style={{ width: 28, height: 28, objectFit: 'contain', opacity: 0.8 }} />
+              <span style={{ color: 'rgba(240,237,232,0.4)', fontSize: 12 }}>
+                © {new Date().getFullYear()} Verus
+              </span>
+            </div>
 
-          <div style={{ display: 'flex', gap: 28 }}>
-            <Link to="/" className="tm-footer-link">Home</Link>
-            <Link to="/team" className="tm-footer-link">Team</Link>
-            <Link to="/waitlist" className="tm-footer-link">Join the Waitlist</Link>
+            <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
+              <Link to="/" className="tm-footer-link">Home</Link>
+              <Link to="/team" className="tm-footer-link">Team</Link>
+              <Link to="/waitlist" className="tm-footer-link">Join the Waitlist</Link>
+            </div>
           </div>
         </div>
       </footer>
